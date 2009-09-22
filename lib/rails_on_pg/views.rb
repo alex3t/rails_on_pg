@@ -3,9 +3,8 @@ module RailsOnPg
     
     # Create new view
     # <tt>name</tt> - name of view 
-    # <tt>:dependent_views</tt> - if view has dependent views(views used in current view) then you need list them here
     # Example:     
-    #   create_view :patients, :dependent_views=>[:view0,:view1] do |v|
+    #   create_view :active_patients do |v|
     #     v.select 'p.patient_id as id' ,'p.id as visit_id'
     #     v.from 'patients as p'
     #     v.join 'left join demographics d on d.visit_id=v.id'
@@ -26,12 +25,12 @@ module RailsOnPg
     # <tt>columns</tt> - array of columns or string
     # <tt>options</tt> - options
     # Options:
-    # <tt>:dependent_views</tt> - if view has dependent views(views used in current view) then you need list them here    
+    # <tt>:dependent_views</tt> - if view has dependent views(views where current view used) then you need list them here
     # Example:
-    #   update_view :patients, :add, ['p.first_name as name','p.age as dob']
-    #   update_view :patients, :add, 'p.first_name as name', :dependent_views=>['view0','view1']
-    #   update_view :patients, :remove, 'p.first_name as name', :dependent_views=>['view0','view1']
-    #   update_view :patients, :replace, ['p.first_name as name','p.age as dob'] #replace all select columns
+    #   update_view :active_patients, :add, ['p.first_name as name','p.age as dob']
+    #   update_view :active_patients, :add, 'p.first_name as name', :dependent_views=>['view0','view1']
+    #   update_view :active_patients, :remove, 'p.first_name as name', :dependent_views=>['view0','view1']
+    #   update_view :active_patients, :replace, ['p.first_name as name','p.age as dob'] #replace all select columns
     def update_view name, type, columns, options={}
       view_structure = ActiveRecord::Base.connection.select_value("select definition from pg_views where viewname='#{name}'")
       raise ViewNotExistException("View #{name} does not exist in current db") unless view_structure
@@ -56,6 +55,8 @@ module RailsOnPg
     end
     
     # drop dependent views before if exists
+    # Options
+    # <tt>:dependent_views</tt> - if view has dependent views(views where current view used) then you need list them here    
     def drop_views name, defs=nil
       defs = defs.delete(:dependent_views) if defs.is_a?(Hash)
       defs.each do |dependent_view|
