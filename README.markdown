@@ -7,14 +7,14 @@ Create/drop Views, Functions, Triggers, Foreign keys in your migrations using ru
     script/plugin install git://github.com/alex3t/rails_on_pg.git
     
 ## Views
-
+`
   create_view :active_patients do |view|
     view.select 'p.patient_id as id' ,'p.id as visit_id'
     view.from 'patients as p'
     view.join 'left join demographics d on d.visit_id=v.id'
     view.conditions 'p.status'=>'active','p.name' => 'John' #or "p.status='active' and p.name='John'"
   end
-  
+`  
 ## Functions
 
   create_function 'format_name', {:returns=>'character varying'}, 'first_name character varying(125)', 'middle_name character varying(15)', "last_name character varying(20)" do
